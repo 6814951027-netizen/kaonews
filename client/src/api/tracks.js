@@ -1,6 +1,4 @@
-// Vite proxies /api to the backend (http://localhost:5000) during development.
-// Set PORTABLE_TRACKS_API_URL only when deploying with a different API address.
-const API_BASE_URL = window.PORTABLE_TRACKS_API_URL || "/api";
+import { API_BASE_URL } from "./base.js";
 
 async function request(path, options = {}) {
   const response = await fetch(`${API_BASE_URL}${path}`, {

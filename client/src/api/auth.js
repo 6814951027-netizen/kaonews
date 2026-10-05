@@ -1,4 +1,4 @@
-const API_BASE_URL = window.PORTABLE_TRACKS_API_URL || "/api";
+import { API_BASE_URL } from "./base.js";
 
 async function request(path, body) {
   const response = await fetch(`${API_BASE_URL}${path}`, {

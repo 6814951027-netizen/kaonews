@@ -6,12 +6,21 @@ const authRoutes = require("./routes/auth.routes");
 const articleRoutes = require("./routes/article.routes");
 const categoryRoutes = require("./routes/category.routes");
 const { notFound, errorHandler } = require("./middlewares/error.middleware");
+const connectDB = require("./config/db");
 
 const app = express();
 
 // 1. Global middleware
 app.use(cors());
 app.use(express.json());
+app.use(async (req, res, next) => {
+    try {
+        await connectDB();
+        next();
+    } catch (error) {
+        next(error);
+    }
+});
 app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
 
 // 2. Routes
