@@ -1,0 +1,10 @@
+# Installed dependencies are platform-specific and must be installed by each environment.
+node_modules/
+
+# Frontend production output is produced by Vite during deployment.
+client/dist/
+
+# Keep only example environment files in source control.
+.env
+.env.*
+!.env.example
