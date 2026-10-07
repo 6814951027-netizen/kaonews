@@ -1,5 +1,23 @@
 const Article = require("../models/article.model");
 const Category = require("../models/category.model");
+const { put } = require("@vercel/blob");
+const crypto = require("crypto");
+const path = require("path");
+
+const uploadCoverImage = async (file) => {
+    if (!file) return null;
+    if (!process.env.BLOB_READ_WRITE_TOKEN) {
+        throw new Error("BLOB_READ_WRITE_TOKEN is not configured");
+    }
+
+    const extension = path.extname(file.originalname).toLowerCase() || ".img";
+    const blob = await put(`article-covers/${crypto.randomUUID()}${extension}`, file.buffer, {
+        access: "public",
+        addRandomSuffix: true,
+        contentType: file.mimetype,
+    });
+    return blob.url;
+};
 
 const getArticles = async (req, res, next) => {
     try {
@@ -50,12 +68,13 @@ const createArticle = async (req, res, next) => {
         const selectedCategory = await Category.findById(category);
         if (!selectedCategory) return res.status(400).json({ message: "Invalid category" });
         const slugBase = title.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+        const coverImage = await uploadCoverImage(req.file);
         const article = await Article.create({
             title,
             slug: `${slugBase || "article"}-${Date.now()}`,
             summary,
             content,
-            coverImage: req.file ? `/uploads/${req.file.filename}` : null,
+            coverImage,
             type,
             tags: Array.isArray(tags) ? tags : String(tags).split(",").map((tag) => tag.trim()).filter(Boolean),
             author: req.user._id,
@@ -91,7 +110,7 @@ const updateArticle = async (req, res, next) => {
         article.category = selectedCategory._id;
         article.type = type || article.type;
         article.tags = Array.isArray(tags) ? tags : String(tags || "").split(",").map((tag) => tag.trim()).filter(Boolean);
-        if (req.file) article.coverImage = `/uploads/${req.file.filename}`;
+        if (req.file) article.coverImage = await uploadCoverImage(req.file);
 
         await article.save();
         const populatedArticle = await article.populate(["category", "author"]);
