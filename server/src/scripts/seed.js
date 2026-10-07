@@ -20,6 +20,8 @@ const seed = async () => {
         { name: "ข่าว", slug: "news" }, { name: "รีวิว", slug: "reviews" },
         { name: "ไกด์", slug: "guides" }, { name: "eSports", slug: "esports" }, { name: "อุปกรณ์คอม", slug: "hardware" },
     ];
+    categoryValues.push({ name: "ข่าวเกม", slug: "game-news" });
+
     const categories = {};
     for (const value of categoryValues) categories[value.slug] = await Category.findOneAndUpdate({ slug: value.slug }, value, { upsert: true, returnDocument: "after" });
     console.log("Seeded admin and categories; no articles were created");
